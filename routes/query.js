@@ -11,7 +11,7 @@ router.post('/add', (req, res) => {
 
 router.get('/', (req, res) => {
     Eq.find().exec((err, docs) => {
-        if(err) return res.status(400).json({success: false, err})
+        if(err) return res.status(400).json({success: false, error: err})
         return res.status(200).json({success: true, found: docs})
     })
 })
@@ -20,8 +20,8 @@ router.get('/detail/:id', (req, res) => {
     let id = req.params.id
 
     Eq.findById(id, function (err, doc) {
-        if(err) return res.json({success: false, error: err})
-        return res.json({success: true, doc})
+        if(err) return res.status(400).json({success: false, error: err})
+        return res.status(200).json({success: true, found: doc})
     })
 })
 

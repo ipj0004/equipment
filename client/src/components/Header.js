@@ -1,22 +1,22 @@
 import React from 'react'
-import logo from './logo4.PNG'
+import logo from './logoTemp.PNG'
 
 
 function Header() {
     return (
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-            <img src={logo} class="d-inline-block align-text-top"/>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/">SeeAll</a>
+        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <div className="container-fluid">
+                <img src={logo} className="d-inline-block align-text-top" alt="logo"/>&nbsp;
+                <div className="collapse navbar-collapse" id="navbarNav">
+                    <ul className="navbar-nav">
+                        <li className="nav-item">
+                            <a className="btn btn-outline-primary" href="/" role="button">SeeAll</a>&nbsp;
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/addgvn7dqcu">NewRegistration</a>
+                        <li className="nav-item">
+                            <a className="btn btn-outline-success" href="/addgvn7dqcu">NewRegistration</a>&nbsp;
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/discardedgvn7dqcu">SeeDiscarded</a>
+                        <li className="nav-item">
+                            <a className="btn btn-outline-secondary" href="/discardedgvn7dqcu">SeeDiscarded</a>&nbsp;
                         </li>
                     </ul>
                 </div>
