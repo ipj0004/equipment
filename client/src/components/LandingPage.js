@@ -7,9 +7,8 @@ function LandingPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const { data } = await axios.get(`http://localhost:5000/gvn7dqcu`)
+      const { data } = await axios.get(`/gvn7dqcu/`)
       setDocs(data.found)
-      console.log(data.found)
     }
     fetchData()
   }, [])
@@ -28,7 +27,7 @@ function LandingPage() {
           </tr>
         </thead>
         <tbody>
-          {docs.map((doc, index) => {
+          {docs.filter(doc => doc.discarded === false).map((doc, index) => {
             return (
               <tr key={'tr' + index.toString()}>
                 <th key={'th' + index.toString()} scope="row">{index}</th>
@@ -36,15 +35,15 @@ function LandingPage() {
                 <td key={'regi' + index.toString()}>{doc.description}</td>
                 <td key={'desc' + index.toString()}>{doc.location}</td>
                 <td>
-                  <a className="btn btn-success" href={`/detailgvn7dqcu/${doc._id}`}>
+                  <a className="btn btn-success" href={`/detail/${doc._id}`}>
                     <i className="fas fa-file-alt"></i>&nbsp;Show
                   </a>
                   &nbsp;
-                  <a className="btn btn-warning" href="/editgvn7dqcu/:id">
+                  <a className="btn btn-warning" href={`/edit/${doc._id}`}>
                     <i className="fas fa-edit"></i>&nbsp;Edit
                   </a>
                   &nbsp;
-                  <a className="btn btn-danger" href="/discardgvn7dqcu/:id">
+                  <a className="btn btn-danger" href={`/discard/${doc._id}`}>
                     <i className="far fa-trash-alt"></i>&nbsp;Discard
                   </a>
                 </td>

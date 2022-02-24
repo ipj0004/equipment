@@ -13,10 +13,10 @@ function Header() {
                             <a className="btn btn-outline-primary" href="/" role="button">SeeAll</a>&nbsp;
                         </li>
                         <li className="nav-item">
-                            <a className="btn btn-outline-success" href="/addgvn7dqcu">NewRegistration</a>&nbsp;
+                            <a className="btn btn-outline-success" href="/add">NewRegistration</a>&nbsp;
                         </li>
                         <li className="nav-item">
-                            <a className="btn btn-outline-secondary" href="/discardedgvn7dqcu">SeeDiscarded</a>&nbsp;
+                            <a className="btn btn-outline-secondary" href="/discarded">SeeDiscarded</a>&nbsp;
                         </li>
                     </ul>
                 </div>

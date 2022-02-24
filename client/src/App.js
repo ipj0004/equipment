@@ -5,6 +5,7 @@ import DetailPage from './components/DetailPage'
 import EditDoc from './components/EditDoc'
 import LandingPage from './components/LandingPage'
 import Header from './components/Header'
+import Discarded from './components/Discarded'
 
 function App() {
   return (
@@ -13,9 +14,10 @@ function App() {
         <Header />
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/detailgvn7dqcu/:id" element={<DetailPage />} />
-          <Route path="/addgvn7dqcu" element={<CreateDoc />} />
-          <Route path="/editgvn7dqcu/:id" element={<EditDoc />} />
+          <Route path="/detail/:id" element={<DetailPage />} />
+          <Route path="/add" element={<CreateDoc />} />
+          <Route path="/edit/:id" element={<EditDoc />} />
+          <Route path="/discarded" element={<Discarded />} />
         </Routes>
       </BrowserRouter>
     </div>

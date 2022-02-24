@@ -4,19 +4,17 @@ import axios from 'axios'
 
 function DetailPage() {
     const [doc, setDoc] = useState({})
-    const [pic, setPic] = useState({appearance: "", label: ""})
+    const [appearance, setAppearance] = useState("")
+    const [label, setLabel] = useState("")
 
     let { id } = useParams()
 
     useEffect(() => {
         async function fetchData() {
-            const { data } = await axios.get(`http://localhost:5000/gvn7dqcu/detail/${id}`)
+            const { data } = await axios(`/gvn7dqcu/detail/${id}`)
             setDoc(data.found)
-            if(data.found.picture){
-            setPic({appearance: data.found.picture.appearance, label: data.found.picture.label})
-            }else{
-                setPic({appearance: "2021-0002/sample.jpg", label: "2021-0002.label.jpg"})
-            }
+            setAppearance("no valid URL")
+            setLabel("no valid URL")
         }
         fetchData()
     }, [id])
@@ -33,14 +31,14 @@ function DetailPage() {
         let rtn
         if (history) {
             rtn = history.map((hist, index) => {
-                return(
-                <tr key={'tr' + index.toString()}>
-                    <td key={'user' + index.toString()}>{hist.user}</td>
-                    <td key={'since' + index.toString()}>{hist.since}</td>
-                </tr>
+                return (
+                    <tr key={'tr' + index.toString()}>
+                        <td key={'user' + index.toString()}>{hist.user}</td>
+                        <td key={'since' + index.toString()}>{hist.since}</td>
+                    </tr>
                 )
             })
-        }else{
+        } else {
             rtn = <tr></tr>
         }
         return (rtn)
@@ -48,40 +46,32 @@ function DetailPage() {
 
     return (
         <div>
+            <p>Detail Page</p>
             <div className="container">
-                <p>{doc.no}</p>
-                <table className="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">SupplyNo</th>
-                            <th scope="col">Registrated</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">UnitPrice</th>
-                            <th scope="col">Qty</th>
-                            <th scope="col">TotalPrice</th>
-                            <th scope="col">Dept</th>
-                            <th scope="col">Owner</th>
-                            <th scope="col">Location</th>
-                            <th scope="col">Note</th>
-                            <th scope="col"><div>PhoneNo</div><div>(optional)</div></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{doc.no}</td>
-                            <td>{doc.registrated}</td>
-                            <td>{doc.description}</td>
-                            <td>{doc.unitPrice}</td>
-                            <td>{doc.qty}</td>
-                            <td>{totalPriceCalc(doc.unitPrice, doc.qty)}</td>
-                            <td>{doc.department}</td>
-                            <td>{doc.owner}</td>
-                            <td>{doc.location}</td>
-                            <td>{doc.note}</td>
-                            <td>{doc.phoneNo}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <dl className="row">
+                    <dt className="col-sm-2">SupplyNo</dt>
+                    <dd className="col-sm-10">{doc.no}</dd>
+                    <dt className="col-sm-2">Registrated</dt>
+                    <dd className="col-sm-10">{doc.registrated}</dd>
+                    <dt className="col-sm-2">Description</dt>
+                    <dd className="col-sm-10">{doc.description}</dd>
+                    <dt className="col-sm-2">UnitPrice</dt>
+                    <dd className="col-sm-10">{doc.unitPrice}</dd>
+                    <dt className="col-sm-2">Qty</dt>
+                    <dd className="col-sm-10">{doc.qty}</dd>
+                    <dt className="col-sm-2">TotalPrice</dt>
+                    <dd className="col-sm-10">{totalPriceCalc(doc.unitPrice, doc.qty)}</dd>
+                    <dt className="col-sm-2">Dept</dt>
+                    <dd className="col-sm-10">{doc.department}</dd>
+                    <dt className="col-sm-2">Owner</dt>
+                    <dd className="col-sm-10">{doc.owner}</dd>
+                    <dt className="col-sm-2">Location</dt>
+                    <dd className="col-sm-10">{doc.location}</dd>
+                    <dt className="col-sm-2">Note</dt>
+                    <dd className="col-sm-10">{doc.note}</dd>
+                    <dt className="col-sm-2">PhoneNo(Optional)</dt>
+                    <dd className="col-sm-10">{doc.phoneNo}</dd>
+                </dl>
             </div>
             <div className="container">
                 <table className="table">
@@ -100,13 +90,15 @@ function DetailPage() {
                 <table className="table">
                     <thead>
                         <tr>
-                            <th scope="col">Photo(entire)</th>
-                            <th scope="col">Photo(label bumber)</th>
+                            <th scope="col">Picture(entire)</th>
+                            <th scope="col">Picture(label number)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <td>{pic.appearance}</td>
-                        <td>{pic.label}</td>
+                        <tr>
+                            <td>{appearance}</td>
+                            <td>{label}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
