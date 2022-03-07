@@ -11,6 +11,7 @@ const EqSchema = new Schema({
         type: Boolean,
         default: false
     },
+    discardedReason: String,
     registrated: String,
     description: String,
     unitPrice: Number,

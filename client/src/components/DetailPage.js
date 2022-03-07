@@ -44,6 +44,16 @@ function DetailPage() {
         return (rtn)
     }
 
+    function displayDiscarded(document) {
+        if(document.discarded){
+            return("true, reason: " + document.discardedReason)
+        }
+        if(!document.discarded){
+            return("false")
+        }
+        return("no valid data")
+    }
+
     return (
         <div>
             <p>Detail Page</p>
@@ -71,6 +81,8 @@ function DetailPage() {
                     <dd className="col-sm-10">{doc.note}</dd>
                     <dt className="col-sm-2">PhoneNo(Optional)</dt>
                     <dd className="col-sm-10">{doc.phoneNo}</dd>
+                    <dt className="col-sm-2">Discarded</dt>
+                    <dd className="col-sm-10">{displayDiscarded(doc)}</dd>
                 </dl>
             </div>
             <div className="container">
