@@ -15,7 +15,6 @@ function LandingPage() {
     async function fetchData() {
         const { data } = await axios.get(`/gvn7dqcu/`)
         setDocs(data.found)
-        console.log(data.found)
     }
     fetchData()
 }, [])
@@ -40,7 +39,7 @@ function LandingPage() {
   }
 
   /**************************************************************************/
-  /**docsの要素でSupplyNoがサーチ欄の年で始まるものだけ残す*/
+  /**docsの要素でregistratedがサーチ欄の年で始まるものだけ残す*/
   const filterContent = (docs, searchTerm) => {
     const result = docs.filter(
       (doc) =>

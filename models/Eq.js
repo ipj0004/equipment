@@ -22,7 +22,8 @@ const EqSchema = new Schema({
     rentalHistory: [{user: String, since: String}],
     note: String,
     phoneNo: String,
-    picture: {appearance: String, label: String}
+    appearance: String,
+    label: String
 })
 
 module.exports = {
