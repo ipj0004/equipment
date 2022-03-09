@@ -36,7 +36,8 @@ function App() {
     location: "",
     note: "",
     phoneNo: "",
-    picture: { appearance: "", label: "" }
+    appearance: "",
+    label: ""
   })
 
 
@@ -50,6 +51,24 @@ function App() {
   /****** state for Modal which is about Showing Discarded Documents *******/
   /*************************************************************************/
   const [disDocsModalOpen, setDisDocsModalOpen] = useState(false)
+
+
+  /*************************************************************************/
+  /***** state for Modal which is about Showing All Data of a document *****/
+  /*************************************************************************/
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
+
+
+  /*************************************************************************/
+  /***** state for Modal which is about Showing All Data of a document *****/
+  /*************************************************************************/
+  const [editModalOpen, setEditModalOpen] = useState(false)
+
+
+  /*************************************************************************/
+  /** state for keeping entire fields of a specific doc inside map method **/
+  /*************************************************************************/
+  const [tempDoc, setTempDoc] = useState({})
 
 
   /*************************************************************************/
@@ -92,61 +111,49 @@ function App() {
 
 
   /*************************************************************************/
-  /******** function for filtering Documents by registrated year ***********/
+  /******** function for filtering Documents by multiple keywords **********/
   /*************************************************************************/
-  const filterContent = (docs, searchTerm) => {
+  const filterContent = (docs, searchSupplyNo, searchRegistrated, searchDescription, searchDept, searchOwner, searchNote) => {
     const result = docs.filter(
       (doc) =>
-        doc.no.startsWith(searchTerm) === true
+        doc.no.includes(searchSupplyNo)
+        &&
+        doc.registrated.includes(searchRegistrated)
+        &&
+        doc.description.toLowerCase().includes(searchDescription.toLowerCase())
+        &&
+        doc.department.toLowerCase().includes(searchDept.toLowerCase())
+        &&
+        doc.owner.toLowerCase().includes(searchOwner.toLowerCase())
+        &&
+        doc.note.toLowerCase().includes(searchNote.toLowerCase())
     )
     setAllDocs(result)
   }
 
 
   /*************************************************************************/
-  /**** function for calling filterContent when Search Value is changed ****/
+  /******* function for preparing arguments of filterContent function ******/
   /*************************************************************************/
-  const handleTextSearch = (e) => {
-    const searchTerm = e.currentTarget.value
+  const handleTextSearch = () => {
+    const searchSupplyNo = document.getElementById("searchSupplyNo").value
+    const searchRegistrated = document.getElementById("searchRegistrated").value
+    const searchDescription = document.getElementById("searchDescription").value
+    const searchDept = document.getElementById("searchDept").value
+    const searchOwner = document.getElementById("searchOwner").value
+    const searchNote = document.getElementById("searchNote").value
     axios.get(`/gvn7dqcu/`).then((res) => {
-      console.log("DB connected")
       if (res.data.success) {
-        filterContent(res.data.found, searchTerm)
+        filterContent(res.data.found, searchSupplyNo, searchRegistrated, searchDescription, searchDept, searchOwner, searchNote)
       }
     })
-  }
-
-
-  /*************************************************************************/
-  /****** function for calling filterContent with current Search Value *****/
-  /*************************************************************************/
-  const reloadTextSearch = () => {
-    const searchTerm = document.getElementById("searchTerm").value
-    axios.get(`/gvn7dqcu/`).then((res) => {
-      console.log("DB connected")
-      if (res.data.success) {
-        filterContent(res.data.found, searchTerm)
-      }
-    })
-  }
-
-
-  /*************************************************************************/
-  /************* function for validating input one-byte number *************/
-  /*************************************************************************/
-  const isInputNumber = (e) => {
-    const ch = String.fromCharCode(e.which)
-    if (!(/[0-9]/.test(ch))) {
-      e.preventDefault()
-    }
   }
 
 
   /*************************************************************************/
   /******************* function for Posting New Document *******************/
   /*************************************************************************/
-  const onSubmitNew = (e) => {
-    e.preventDefault()
+  const onSubmitNew = () => {
     const data = newDoc
     axios.post("/gvn7dqcu/add", data).then((res) => {
       if (res.data.success === true) {
@@ -194,7 +201,7 @@ function App() {
         setConfirmNo("")
         setTempId("")
         setTempNo("")
-        reloadTextSearch()
+        handleTextSearch()
         setDisDocModalOpen(false)
       })
     } else if (confirmNo) {
@@ -209,11 +216,11 @@ function App() {
   /******************* function for Resuming Document **********************/
   /*************************************************************************/
   const resumeItem = (id, no) => {
-    const chkNo = prompt("Almost done!\n\nPlease type " + no + " to make sure this is the correct one\n\n(Only one-byte characters available)")
+    const chkNo = prompt("Almost done!\n\nPlease type " + no + " to make sure you are choosing the correct one")
     if (chkNo === no) {
       const body = { discarded: false, discardedReason: "" }
       axios.put(`/gvn7dqcu/update/${id}`, body).then((res) => {
-        alert("SupplyNo: " + res.data.before.no + " has been resumed successfully\n\nPlease click 'Reload Data'  if you can't see resumed item")
+        alert("SupplyNo: " + res.data.before.no + " has been resumed successfully")
         fetchData()
       })
     } else if (chkNo) {
@@ -228,7 +235,7 @@ function App() {
   /******************* function for Deleting Document **********************/
   /*************************************************************************/
   const deleteItem = (id, no) => {
-    const chkNo = prompt("The selected item will be lost permanently\n\nPlease type " + no + " to make sure the correct one was selected\n\n(Only one-byte characters available)")
+    const chkNo = prompt("The selected item will be lost permanently\n\nPlease type " + no + " to make sure the correct one was selected")
     if (chkNo === no) {
       axios.delete(`/gvn7dqcu/delete/${id}`).then((res) => {
         alert("SupplyNo: " + res.data.no + " has been deleted successfully")
@@ -239,6 +246,53 @@ function App() {
     } else {
 
     }
+  }
+
+
+  /*************************************************************************/
+  /**************** function for Calculating Total Price *******************/
+  /*************************************************************************/
+  function totalPriceCalc(unitPrice, qty) {
+    if (unitPrice * qty) {
+      return (unitPrice * qty)
+    } else {
+      return ("")
+    }
+  }
+
+
+  /*************************************************************************/
+  /*************** function for Displaying Rental History ******************/
+  /*************************************************************************/
+  function rentalHistory(history) {
+    let rtn
+    if (history) {
+      rtn = history.map((hist, index) => {
+        return (
+          <tr key={'tr' + index.toString()}>
+            <td key={'user' + index.toString()}>{hist.user}</td>
+            <td key={'since' + index.toString()}>{hist.since}</td>
+          </tr>
+        )
+      })
+    } else {
+      rtn = <tr></tr>
+    }
+    return (rtn)
+  }
+
+
+  /*************************************************************************/
+  /************** function for Displaying Boolean as String ****************/
+  /*************************************************************************/
+  function displayDiscarded(document) {
+    if (document.discarded) {
+      return ("true, reason: " + document.discardedReason)
+    }
+    if (!document.discarded) {
+      return ("false")
+    }
+    return ("no valid data")
   }
 
 
@@ -282,201 +336,249 @@ function App() {
             <ul className="navbar-nav">
               <li className="nav-item">
                 <button className="btn btn-outline-success" onClick={() => setNewDocModalOpen(true)}>
-                <i className="fas fa-plus"></i>
-                &nbsp;New Registration
+                  <i className="fas fa-plus"></i>
+                  &nbsp;New Registration
                 </button>
                 <Modal isOpen={newDocModalOpen} style={modalStyle}>
                   <div className="col-md-10 mt-3 mx-auto">
                     <h1>Adding New Item</h1>
-                    <form className="needs-validation" noValidate>
-                      <div className="form-group">
-                        <input
-                          required
-                          id="no"
-                          maxLength="10"
-                          type="text"
-                          className="form-control"
-                          placeholder="SupplyNo, must fill out, must be unique, example: 20yy-00n"
-                          onChange={(e) => {
-                            if (e.target.value.includes() !== true) {
-                              setNewDoc({ ...newDoc, no: e.target.value })
+                    <div className="form-group">
+                      <input
+                        required
+                        id="no"
+                        maxLength="20"
+                        type="text"
+                        className="form-control"
+                        placeholder="Supply No [ input required, must be unique through the system, recommended format: 20yy-nnn ]"
+                        onChange={(e) => {
+                          if (e.target.value.includes() !== true) {
+                            setNewDoc({ ...newDoc, no: e.target.value })
+                          }
+                        }}
+                        onBlur={() => {
+                          if (document.getElementById("no").value) {
+                            const check = document.getElementById("no").value
+                            if (!(/^[!-~]*$/.test(check))) {
+                              alert("Supply No is supposed to consist of one-byte charactors without space\n\nyour input into this field will be canceled")
+                              document.getElementById("no").value = ""
+                              setNewDoc({ ...newDoc, no: "" })
                             }
-                          }}
-                        />
-                      </div>
+                          }
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="registrated"
-                          maxLength="10"
-                          type="text"
-                          className="form-control"
-                          placeholder="register date, example: 20yy-mm-dd"
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, registrated: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="registrated"
+                        maxLength="10"
+                        type="text"
+                        className="form-control"
+                        placeholder="Registrated Date [ format: 20yy-mm-dd ]"
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, registrated: e.target.value })
+                        }}
+                        onBlur={() => {
+                          if (document.getElementById("registrated").value) {
+                            const check = document.getElementById("registrated").value
+                            if (!(/\d{4}-\d{2}-\d{2}/.test(check))) {
+                              alert("please input Registrated Date in the right format: 20yy-mm-dd\n\nyour input into this field will be canceled")
+                              document.getElementById("registrated").value = ""
+                              setNewDoc({ ...newDoc, registrated: "" })
+                            }
+                          }
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="description"
-                          maxLength="30"
-                          type="text"
-                          className="form-control"
-                          placeholder="description, maxLength=30"
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, description: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="description"
+                        maxLength="70"
+                        type="text"
+                        className="form-control"
+                        placeholder="Description [ maxLength=70 ]"
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, description: e.target.value })
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="unitPrice"
-                          maxLength="8"
-                          type="tel"
-                          className="form-control"
-                          placeholder="unitPrice, example: 9980"
-                          onKeyPress={isInputNumber}
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, unitPrice: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="unitPrice"
+                        maxLength="10"
+                        type="tel"
+                        className="form-control"
+                        placeholder="Unit Price (extax)  e.g. 9980"
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, unitPrice: e.target.value })
+                        }}
+                        onBlur={() => {
+                          if (document.getElementById("unitPrice").value) {
+                            const check = document.getElementById("unitPrice").value
+                            if (!(/^[0-9]*$/.test(check))) {
+                              alert("Unit Price is supposed to consist of one-byte numbers without even comma「 , 」\n\nyour input into this field will be canceled\n\nif you need to input after the decimal point, please contact system administrator")
+                              document.getElementById("unitPrice").value = ""
+                              setNewDoc({ ...newDoc, unitPrice: "" })
+                            }
+                          }
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="qty"
-                          maxLength="5"
-                          type="tel"
-                          className="form-control"
-                          placeholder="Qty, example: 5"
-                          onKeyPress={isInputNumber}
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, qty: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="qty"
+                        maxLength="5"
+                        type="tel"
+                        className="form-control"
+                        placeholder="Qty"
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, qty: e.target.value })
+                        }}
+                        onBlur={() => {
+                          if (document.getElementById("qty").value) {
+                            const check = document.getElementById("qty").value
+                            if (!(/^[0-9]*$/.test(check))) {
+                              alert("Qty is supposed to consist of one-byte numbers\n\nyour input will be canceled")
+                              document.getElementById("qty").value = ""
+                              setNewDoc({ ...newDoc, qty: "" })
+                            }
+                          }
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="department"
-                          maxLength="20"
-                          type="text"
-                          className="form-control"
-                          placeholder="department, example: Shinjuku, or GW etc."
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, department: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="department"
+                        maxLength="20"
+                        type="text"
+                        className="form-control"
+                        placeholder="Department"
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, department: e.target.value })
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="owner"
-                          maxLength="20"
-                          type="text"
-                          className="form-control"
-                          placeholder="owner"
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, owner: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="owner"
+                        maxLength="20"
+                        type="text"
+                        className="form-control"
+                        placeholder="Owner"
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, owner: e.target.value })
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="location"
-                          maxLength="20"
-                          type="text"
-                          className="form-control"
-                          placeholder="location, example: Ogano 1F"
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, location: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="location"
+                        maxLength="20"
+                        type="text"
+                        className="form-control"
+                        placeholder="Location [ maxLength=20 ] "
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, location: e.target.value })
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="note"
-                          maxLength="50"
-                          type="text"
-                          className="form-control"
-                          placeholder="any comment, maxLength=50"
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, note: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="note"
+                        maxLength="50"
+                        type="text"
+                        className="form-control"
+                        placeholder="Note [ maxLength=50 ]"
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, note: e.target.value })
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="phoneNo"
-                          maxLength="20"
-                          type="tel"
-                          className="form-control"
-                          placeholder="phoneNo (Optional, if adding mobilePhones etc.) example: 090-1111-2222"
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, unitPrice: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="phoneNo"
+                        maxLength="20"
+                        type="tel"
+                        className="form-control"
+                        placeholder="Phone No  [ without「 - 」, Optionnal Field: just in case your item is mobile devices ]"
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, phoneNo: e.target.value })
+                        }}
+                        onBlur={() => {
+                          if (document.getElementById("phoneNo").value) {
+                            const check = document.getElementById("phoneNo").value
+                            if (!(/^[0-9]*$/.test(check))) {
+                              alert("Phone No is supposed to consist of one-byte numbers without「 - 」\n\nyour input will be canceled")
+                              document.getElementById("phoneNo").value = ""
+                              setNewDoc({ ...newDoc, phoneNo: "" })
+                            }
+                          }
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="appearance"
-                          maxLength="50"
-                          type="text"
-                          className="form-control"
-                          placeholder="URL text of appearance picture, maxLength=50"
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, appearance: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="appearance"
+                        maxLength="50"
+                        type="text"
+                        className="form-control"
+                        placeholder="Share Folder's URL of Picture (appearance of your item)  [ maxLength=50 ]"
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, appearance: e.target.value })
+                        }}
+                      />
+                    </div>
 
-                      <div className="form-group">
-                        <input
-                          id="appearance"
-                          maxLength="50"
-                          type="text"
-                          className="form-control"
-                          placeholder="URL text of label picture, maxLength=50"
-                          onChange={(e) => {
-                            setNewDoc({ ...newDoc, label: e.target.value })
-                          }}
-                        />
-                      </div>
+                    <div className="form-group">
+                      <input
+                        id="label"
+                        maxLength="50"
+                        type="text"
+                        className="form-control"
+                        placeholder="Share Folder's URL of Picture (zooming the label on your item)  [ maxLength=50 ]"
+                        onChange={(e) => {
+                          setNewDoc({ ...newDoc, label: e.target.value })
+                        }}
+                      />
+                    </div>
 
-                      <hr style={{ width: '1000px' }} />
+                    <hr style={{ width: '1000px' }} />
 
-                      <div>
-                        <button
-                          className="btn btn-success"
-                          type="submit"
-                          onClick={onSubmitNew}
-                        >
-                          <i className="far fa-check-square"></i>
-                          &nbsp;Submit
-                        </button>
-                        &nbsp;
-                        <button
-                          className="btn btn-secondary"
-                          onClick={() => setNewDocModalOpen(false)}>
-                          Close
-                        </button>
-                      </div>
-                    </form>
+                    <div>
+                      <button
+                        className="btn btn-success"
+                        onClick={() => onSubmitNew()}
+                      >
+                        <i className="far fa-check-square"></i>
+                        &nbsp;Submit
+                      </button>
+                      &nbsp;
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => {
+                          handleTextSearch()
+                          setNewDocModalOpen(false)
+                        }}>
+                        Close
+                      </button>
+                    </div>
                   </div>
                 </Modal>
                 &nbsp;
               </li>
               <li className="nav-item">
                 <button className="btn btn-outline-secondary" onClick={() => setDisDocsModalOpen(true)}>
-                <i className="fas fa-list-ol"></i>
-                &nbsp;See Discarded Items
+                  <i className="fas fa-list-ol"></i>
+                  &nbsp;See Discarded Items
                 </button>
                 <Modal isOpen={disDocsModalOpen} style={modalStyle}>
                   <div className="container">
@@ -484,9 +586,10 @@ function App() {
                     <table className="table">
                       <thead>
                         <tr>
-                          <th scope="col">#</th>
                           <th scope="col">SupplyNo</th>
+                          <th scope="col">Registrated</th>
                           <th scope="col">Description</th>
+                          <th scope="col">Dept</th>
                           <th scope="col">Reason</th>
                           <th scope="col">Actions</th>
                         </tr>
@@ -495,22 +598,99 @@ function App() {
                         {allDocs.filter(doc => doc.discarded === true).map((doc, index) => {
                           return (
                             <tr key={'tr' + index.toString()}>
-                              <th key={'th' + index.toString()} scope="row">{index}</th>
-                              <td key={'no' + index.toString()}>{doc.no}</td>
-                              <td key={'desc' + index.toString()}>{doc.description}</td>
+                              <th key={'no' + index.toString()}>{doc.no}</th>
+                              <td key={'regist' + index.toString()}>{doc.registrated}</td>
+                              <td key={'desc' + index.toString()} width="23%">{doc.description}</td>
+                              <td key={'dept' + index.toString()}>{doc.department}</td>
                               <td key={'reason' + index.toString()}>{doc.discardedReason}</td>
                               <td>
-                                <a className="btn btn-primary" onClick={() => resumeItem(doc._id, doc.no)}>
+                                <button className="btn btn-primary" onClick={() => resumeItem(doc._id, doc.no)}>
                                   <i className="fas fa-file-alt"></i>&nbsp;Resume
-                                </a>
+                                </button>
                                 &nbsp;
-                                <a className="btn btn-success" href="#">
+                                <button className="btn btn-success" onClick={() => {
+                                  setTempDoc(doc)
+                                  setDetailModalOpen(true)
+                                }}>
                                   <i className="fas fa-file-alt"></i>&nbsp;Show
-                                </a>
+                                </button>
+                                <Modal isOpen={detailModalOpen} style={modalStyle}>
+                                  <div>
+                                    <h1>Showing All Data of SupplyNo {tempDoc.no}</h1>
+                                    <div className="container">
+                                      <dl className="row">
+                                        <dt className="col-sm-2">SupplyNo</dt>
+                                        <dd className="col-sm-10">{tempDoc.no}</dd>
+                                        <dt className="col-sm-2">Registrated</dt>
+                                        <dd className="col-sm-10">{tempDoc.registrated}</dd>
+                                        <dt className="col-sm-2">Description</dt>
+                                        <dd className="col-sm-10">{tempDoc.description}</dd>
+                                        <dt className="col-sm-2">UnitPrice (extax)</dt>
+                                        <dd className="col-sm-10">{tempDoc.unitPrice}</dd>
+                                        <dt className="col-sm-2">Qty</dt>
+                                        <dd className="col-sm-10">{tempDoc.qty}</dd>
+                                        <dt className="col-sm-2">TotalPrice (extax)</dt>
+                                        <dd className="col-sm-10">{totalPriceCalc(tempDoc.unitPrice, tempDoc.qty)}</dd>
+                                        <dt className="col-sm-2">Dept</dt>
+                                        <dd className="col-sm-10">{tempDoc.department}</dd>
+                                        <dt className="col-sm-2">Owner</dt>
+                                        <dd className="col-sm-10">{tempDoc.owner}</dd>
+                                        <dt className="col-sm-2">Location</dt>
+                                        <dd className="col-sm-10">{tempDoc.location}</dd>
+                                        <dt className="col-sm-2">Note</dt>
+                                        <dd className="col-sm-10">{tempDoc.note}</dd>
+                                        <dt className="col-sm-2">PhoneNo(Optional)</dt>
+                                        <dd className="col-sm-10">{tempDoc.phoneNo}</dd>
+                                        <dt className="col-sm-2">Discarded</dt>
+                                        <dd className="col-sm-10">{displayDiscarded(tempDoc)}</dd>
+                                      </dl>
+                                    </div>
+                                    <div className="container">
+                                      <table className="table">
+                                        <thead>
+                                          <tr>
+                                            <th scope="col">Who Borrowed</th>
+                                            <th scope="col">Since</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {rentalHistory(tempDoc.rentalHistory)}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                    <div className="container">
+                                      <table className="table">
+                                        <thead>
+                                          <tr>
+                                            <th scope="col">Picture(entire)</th>
+                                            <th scope="col">Picture(label number)</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>{tempDoc.appearance}</td>
+                                            <td>{tempDoc.label}</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                    <hr style={{ width: '1000px' }} />
+                                    <div>
+                                      <button
+                                        className="btn btn-secondary"
+                                        onClick={() => {
+                                          setTempDoc({})
+                                          setDetailModalOpen(false)
+                                        }}>
+                                        Close
+                                      </button>
+                                    </div>
+                                  </div>
+                                </Modal>
                                 &nbsp;
-                                <a className="btn btn-danger" onClick={() => deleteItem(doc._id, doc.no)}>
+                                <button className="btn btn-danger" onClick={() => deleteItem(doc._id, doc.no)}>
                                   <i className="far fa-trash-alt"></i>&nbsp;Delete
-                                </a>
+                                </button>
                               </td>
                             </tr>
                           )
@@ -523,32 +703,89 @@ function App() {
                 &nbsp;
               </li>
             </ul>
-            <div className="ms-auto">
-              <form className="d-flex">
-                <i className="fas fa-search"></i>
-                <input
-                  className="form-control me-2"
-                  id="searchTerm"
-                  maxLength='25'
-                  type="search"
-                  placeholder="Search -> SupplyNo"
-                  aria-label="Search"
-                  onChange={handleTextSearch}
-                >
-                </input>
-              </form>
-            </div>
           </div>
         </div>
       </nav>
       <div className="container">
+        <div className="ms-auto">
+          <form className="d-flex">
+            <i className="fas fa-search"></i>
+            <input
+              className="form-control me-2"
+              id="searchSupplyNo"
+              maxLength='20'
+              type="search"
+              placeholder="Supply No"
+              aria-label="Search"
+              onChange={handleTextSearch}
+            >
+            </input>
+            <i className="fas fa-search"></i>
+            <input
+              className="form-control me-2"
+              id="searchRegistrated"
+              maxLength='10'
+              type="search"
+              placeholder="Registrated"
+              aria-label="Search"
+              onChange={handleTextSearch}
+            >
+            </input>
+            <i className="fas fa-search"></i>
+            <input
+              className="form-control me-2"
+              id="searchDescription"
+              maxLength='70'
+              type="search"
+              placeholder="Description"
+              aria-label="Search"
+              onChange={handleTextSearch}
+            >
+            </input>
+            <i className="fas fa-search"></i>
+            <input
+              className="form-control me-2"
+              id="searchDept"
+              maxLength='20'
+              type="search"
+              placeholder="Dept"
+              aria-label="Search"
+              onChange={handleTextSearch}
+            >
+            </input>
+            <i className="fas fa-search"></i>
+            <input
+              className="form-control me-2"
+              id="searchOwner"
+              maxLength='20'
+              type="search"
+              placeholder="Owner"
+              aria-label="Search"
+              onChange={handleTextSearch}
+            >
+            </input>
+            <i className="fas fa-search"></i>
+            <input
+              className="form-control me-2"
+              id="searchNote"
+              maxLength='20'
+              type="search"
+              placeholder="Note"
+              aria-label="Search"
+              onChange={handleTextSearch}
+            >
+            </input>
+          </form>
+        </div>
+      </div>
+      <div className="container">
         <table className="table">
           <thead>
             <tr>
-              <th scope="col">#</th>
               <th scope="col">SupplyNo</th>
+              <th scope="col">Registrated</th>
               <th scope="col">Description</th>
-              <th scope="col">Location</th>
+              <th scope="col">Dept</th>
               <th scope="col">Actions</th>
             </tr>
           </thead>
@@ -562,18 +799,137 @@ function App() {
             }).map((doc, index) => {
               return (
                 <tr key={'tr' + index.toString()}>
-                  <th key={'th' + index.toString()} scope="row">{index}</th>
-                  <td key={'no' + index.toString()}>{doc.no}</td>
-                  <td key={'regi' + index.toString()}>{doc.description}</td>
-                  <td key={'desc' + index.toString()}>{doc.location}</td>
-                  <td _id={doc._id} no={doc.no}>
-                    <a className="btn btn-success" href="#">
+                  <th key={'no' + index.toString()}>{doc.no}</th>
+                  <td key={'regist' + index.toString()}>{doc.registrated}</td>
+                  <td key={'desc' + index.toString()} width="23%">{doc.description}</td>
+                  <td key={'dept' + index.toString()}>{doc.department}</td>
+                  <td>
+                    <button className="btn btn-success" onClick={() => {
+                      setTempDoc(doc)
+                      setDetailModalOpen(true)
+                    }}>
                       <i className="fas fa-file-alt"></i>&nbsp;Show
-                    </a>
+                    </button>
+                    <Modal isOpen={detailModalOpen} style={modalStyle}>
+                      <div>
+                        <h1>Showing All Data of SupplyNo {tempDoc.no}</h1>
+                        <div className="container">
+                          <dl className="row">
+                            <dt className="col-sm-2">SupplyNo</dt>
+                            <dd className="col-sm-10">{tempDoc.no}</dd>
+                            <dt className="col-sm-2">Registrated</dt>
+                            <dd className="col-sm-10">{tempDoc.registrated}</dd>
+                            <dt className="col-sm-2">Description</dt>
+                            <dd className="col-sm-10">{tempDoc.description}</dd>
+                            <dt className="col-sm-2">UnitPrice (extax)</dt>
+                            <dd className="col-sm-10">{tempDoc.unitPrice}</dd>
+                            <dt className="col-sm-2">Qty</dt>
+                            <dd className="col-sm-10">{tempDoc.qty}</dd>
+                            <dt className="col-sm-2">TotalPrice (extax)</dt>
+                            <dd className="col-sm-10">{totalPriceCalc(tempDoc.unitPrice, tempDoc.qty)}</dd>
+                            <dt className="col-sm-2">Dept</dt>
+                            <dd className="col-sm-10">{tempDoc.department}</dd>
+                            <dt className="col-sm-2">Owner</dt>
+                            <dd className="col-sm-10">{tempDoc.owner}</dd>
+                            <dt className="col-sm-2">Location</dt>
+                            <dd className="col-sm-10">{tempDoc.location}</dd>
+                            <dt className="col-sm-2">Note</dt>
+                            <dd className="col-sm-10">{tempDoc.note}</dd>
+                            <dt className="col-sm-2">PhoneNo(Optional)</dt>
+                            <dd className="col-sm-10">{tempDoc.phoneNo}</dd>
+                            <dt className="col-sm-2">Discarded</dt>
+                            <dd className="col-sm-10">{displayDiscarded(tempDoc)}</dd>
+                          </dl>
+                        </div>
+                        <div className="container">
+                          <table className="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">Who Borrowed</th>
+                                <th scope="col">Since</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {rentalHistory(tempDoc.rentalHistory)}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div className="container">
+                          <table className="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">Picture(entire)</th>
+                                <th scope="col">Picture(label number)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>{tempDoc.appearance}</td>
+                                <td>{tempDoc.label}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <hr style={{ width: '1000px' }} />
+                        <div>
+                          <button
+                            className="btn btn-secondary"
+                            onClick={() => {
+                              setTempDoc({})
+                              setDetailModalOpen(false)
+                            }}>
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </Modal>
                     &nbsp;
-                    <a className="btn btn-warning" href="#">
+                    <button className="btn btn-warning" onClick={() => {
+                      setTempDoc(doc)
+                      setEditModalOpen(true)
+                    }}>
                       <i className="fas fa-edit"></i>&nbsp;Edit
-                    </a>
+                    </button>
+                    <Modal isOpen={editModalOpen} style={modalStyle}>
+                      <h1>Editing Document</h1>
+                      <div className="container">
+                        <dl className="row">
+                          <dt className="col-sm-2">SupplyNo</dt>
+                          <dd className="col-sm-10">
+                            <input
+                              id="noEdit"
+                              maxLength='20'
+                              type="text"
+                              placeholder={tempDoc.no}
+                              onChange=""
+                            >
+                            </input>
+                          </dd>
+                          <dt className="col-sm-2">Registrated</dt>
+                          <dd className="col-sm-10">{tempDoc.registrated}</dd>
+                          <dt className="col-sm-2">Description</dt>
+                          <dd className="col-sm-10">{tempDoc.description}</dd>
+                          <dt className="col-sm-2">UnitPrice (extax)</dt>
+                          <dd className="col-sm-10">{tempDoc.unitPrice}</dd>
+                          <dt className="col-sm-2">Qty</dt>
+                          <dd className="col-sm-10">{tempDoc.qty}</dd>
+                          <dt className="col-sm-2">TotalPrice (extax)</dt>
+                          <dd className="col-sm-10">{totalPriceCalc(tempDoc.unitPrice, tempDoc.qty)}</dd>
+                          <dt className="col-sm-2">Dept</dt>
+                          <dd className="col-sm-10">{tempDoc.department}</dd>
+                          <dt className="col-sm-2">Owner</dt>
+                          <dd className="col-sm-10">{tempDoc.owner}</dd>
+                          <dt className="col-sm-2">Location</dt>
+                          <dd className="col-sm-10">{tempDoc.location}</dd>
+                          <dt className="col-sm-2">Note</dt>
+                          <dd className="col-sm-10">{tempDoc.note}</dd>
+                          <dt className="col-sm-2">PhoneNo(Optional)</dt>
+                          <dd className="col-sm-10">{tempDoc.phoneNo}</dd>
+                          <dt className="col-sm-2">Discarded</dt>
+                          <dd className="col-sm-10">{displayDiscarded(tempDoc)}</dd>
+                        </dl>
+                      </div>
+                    </Modal>
                     &nbsp;
                     <button className="btn btn-secondary" onClick={() => {
                       setTempId(doc._id)
@@ -594,20 +950,19 @@ function App() {
                               maxLength="10"
                               type="text"
                               className="form-control"
-                              placeholder="example: 20yy-00n"
                               onChange={(e) => setConfirmNo(e.target.value)}
                             />
                           </label>
                         </div>
                         <div className="form-group">
                           <label>
-                            You can write reason shortly
+                            You can write reason if that helps (maxLength=30)
                             <input
                               id="discardedReason"
-                              maxLength="20"
+                              maxLength="30"
                               type="text"
                               className="form-control"
-                              placeholder="example: created by mistake, test, etc."
+                              placeholder="e.g. broken and disposed"
                               onChange={(e) => setReason(e.target.value)}
                             />
                           </label>
