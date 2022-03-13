@@ -886,48 +886,283 @@ function App() {
                     &nbsp;
                     <button className="btn btn-warning" onClick={() => {
                       setTempDoc(doc)
+                      setNewDoc({
+                        no: doc.no,
+                        registrated: doc.registrated,
+                        description: doc.description,
+                        unitPrice: doc.unitPrice,
+                        qty: doc.qty,
+                        department: doc.department,
+                        owner: doc.owner,
+                        location: doc.location,
+                        note: doc.note,
+                        phoneNo: doc.phoneNo,
+                        appearance: doc.appearance,
+                        label: doc.label
+                      })
                       setEditModalOpen(true)
                     }}>
                       <i className="fas fa-edit"></i>&nbsp;Edit
                     </button>
                     <Modal isOpen={editModalOpen} style={modalStyle}>
-                      <h1>Editing Document</h1>
-                      <div className="container">
-                        <dl className="row">
-                          <dt className="col-sm-2">SupplyNo</dt>
-                          <dd className="col-sm-10">
+                      <div className="col-md-10 mx-auto">
+                        <h1>Editing SupplyNo: {tempDoc.no}</h1>
+                        <hr />
+                        <div className="form-group">
+                          <label>SupplyNo
                             <input
-                              id="noEdit"
-                              maxLength='20'
+                              required
+                              id={"noEdit" + index.toString()}
+                              maxLength="20"
                               type="text"
+                              className="form-control"
                               placeholder={tempDoc.no}
-                              onChange=""
-                            >
-                            </input>
-                          </dd>
-                          <dt className="col-sm-2">Registrated</dt>
-                          <dd className="col-sm-10">{tempDoc.registrated}</dd>
-                          <dt className="col-sm-2">Description</dt>
-                          <dd className="col-sm-10">{tempDoc.description}</dd>
-                          <dt className="col-sm-2">UnitPrice (extax)</dt>
-                          <dd className="col-sm-10">{tempDoc.unitPrice}</dd>
-                          <dt className="col-sm-2">Qty</dt>
-                          <dd className="col-sm-10">{tempDoc.qty}</dd>
-                          <dt className="col-sm-2">TotalPrice (extax)</dt>
-                          <dd className="col-sm-10">{totalPriceCalc(tempDoc.unitPrice, tempDoc.qty)}</dd>
-                          <dt className="col-sm-2">Dept</dt>
-                          <dd className="col-sm-10">{tempDoc.department}</dd>
-                          <dt className="col-sm-2">Owner</dt>
-                          <dd className="col-sm-10">{tempDoc.owner}</dd>
-                          <dt className="col-sm-2">Location</dt>
-                          <dd className="col-sm-10">{tempDoc.location}</dd>
-                          <dt className="col-sm-2">Note</dt>
-                          <dd className="col-sm-10">{tempDoc.note}</dd>
-                          <dt className="col-sm-2">PhoneNo(Optional)</dt>
-                          <dd className="col-sm-10">{tempDoc.phoneNo}</dd>
-                          <dt className="col-sm-2">Discarded</dt>
-                          <dd className="col-sm-10">{displayDiscarded(tempDoc)}</dd>
-                        </dl>
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  setNewDoc({ ...newDoc, no: e.target.value })
+                                } else {
+                                  setNewDoc({ ...newDoc, no: tempDoc.no })
+                                }
+                              }}
+                              onBlur={() => {
+                                const id = "noEdit" + index.toString()
+                                if (document.getElementById(id).value) {
+                                  const check = document.getElementById(id).value
+                                  if (!(/^[!-~]*$/.test(check))) {
+                                    alert("Supply No is supposed to consist of one-byte charactors without space\n\nyour input into this field will be canceled")
+                                    document.getElementById(id).value = ""
+                                    setNewDoc({ ...newDoc, no: tempDoc.no })
+                                  }
+                                }
+                              }}
+                            /></label>
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <label>Registrated
+                            <input
+                              id={"registratedEdit" + index.toString()}
+                              maxLength="10"
+                              type="text"
+                              className="form-control"
+                              placeholder={tempDoc.registrated}
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  setNewDoc({ ...newDoc, no: e.target.value })
+                                } else {
+                                  setNewDoc({ ...newDoc, no: tempDoc.registrated })
+                                }
+                              }}
+                              onBlur={() => {
+                                const id = "registratedEdit" + index.toString()
+                                if (document.getElementById(id).value) {
+                                  const check = document.getElementById(id).value
+                                  if (!(/\d{4}-\d{2}-\d{2}/.test(check))) {
+                                    alert("please input Registrated Date in the right format: 20yy-mm-dd\n\nyour input into this field will be canceled")
+                                    document.getElementById(id).value = ""
+                                    setNewDoc({ ...newDoc, registrated: tempDoc.registrated })
+                                  }
+                                }
+                              }}
+                            /></label>
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <p>Description</p>
+                          <input
+                            id={"descriptionEdit" + index.toString()}
+                            maxLength="70"
+                            type="text"
+                            className="form-control"
+                            placeholder={tempDoc.description}
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                setNewDoc({ ...newDoc, no: e.target.value })
+                              } else {
+                                setNewDoc({ ...newDoc, no: tempDoc.description })
+                              }
+                            }}
+                          />
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <input
+                            id="unitPrice"
+                            maxLength="10"
+                            type="tel"
+                            className="form-control"
+                            placeholder="Unit Price (extax)  e.g. 9980"
+                            onChange={(e) => {
+                              setNewDoc({ ...newDoc, unitPrice: e.target.value })
+                            }}
+                            onBlur={() => {
+                              if (document.getElementById("unitPrice").value) {
+                                const check = document.getElementById("unitPrice").value
+                                if (!(/^[0-9]*$/.test(check))) {
+                                  alert("Unit Price is supposed to consist of one-byte numbers without even comma「 , 」\n\nyour input into this field will be canceled\n\nif you need to input after the decimal point, please contact system administrator")
+                                  document.getElementById("unitPrice").value = ""
+                                  setNewDoc({ ...newDoc, unitPrice: "" })
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <input
+                            id="qty"
+                            maxLength="5"
+                            type="tel"
+                            className="form-control"
+                            placeholder="Qty"
+                            onChange={(e) => {
+                              setNewDoc({ ...newDoc, qty: e.target.value })
+                            }}
+                            onBlur={() => {
+                              if (document.getElementById("qty").value) {
+                                const check = document.getElementById("qty").value
+                                if (!(/^[0-9]*$/.test(check))) {
+                                  alert("Qty is supposed to consist of one-byte numbers\n\nyour input will be canceled")
+                                  document.getElementById("qty").value = ""
+                                  setNewDoc({ ...newDoc, qty: "" })
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <input
+                            id="department"
+                            maxLength="20"
+                            type="text"
+                            className="form-control"
+                            placeholder="Department"
+                            onChange={(e) => {
+                              setNewDoc({ ...newDoc, department: e.target.value })
+                            }}
+                          />
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <input
+                            id="owner"
+                            maxLength="20"
+                            type="text"
+                            className="form-control"
+                            placeholder="Owner"
+                            onChange={(e) => {
+                              setNewDoc({ ...newDoc, owner: e.target.value })
+                            }}
+                          />
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <input
+                            id="location"
+                            maxLength="20"
+                            type="text"
+                            className="form-control"
+                            placeholder="Location [ maxLength=20 ] "
+                            onChange={(e) => {
+                              setNewDoc({ ...newDoc, location: e.target.value })
+                            }}
+                          />
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <input
+                            id="note"
+                            maxLength="50"
+                            type="text"
+                            className="form-control"
+                            placeholder="Note [ maxLength=50 ]"
+                            onChange={(e) => {
+                              setNewDoc({ ...newDoc, note: e.target.value })
+                            }}
+                          />
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <input
+                            id="phoneNo"
+                            maxLength="20"
+                            type="tel"
+                            className="form-control"
+                            placeholder="Phone No  [ without「 - 」, Optionnal Field: just in case your item is mobile devices ]"
+                            onChange={(e) => {
+                              setNewDoc({ ...newDoc, phoneNo: e.target.value })
+                            }}
+                            onBlur={() => {
+                              if (document.getElementById("phoneNo").value) {
+                                const check = document.getElementById("phoneNo").value
+                                if (!(/^[0-9]*$/.test(check))) {
+                                  alert("Phone No is supposed to consist of one-byte numbers without「 - 」\n\nyour input will be canceled")
+                                  document.getElementById("phoneNo").value = ""
+                                  setNewDoc({ ...newDoc, phoneNo: "" })
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <input
+                            id="appearance"
+                            maxLength="50"
+                            type="text"
+                            className="form-control"
+                            placeholder="Share Folder's URL of Picture (appearance of your item)  [ maxLength=50 ]"
+                            onChange={(e) => {
+                              setNewDoc({ ...newDoc, appearance: e.target.value })
+                            }}
+                          />
+                        </div>
+                        <hr />
+
+                        <div className="form-group">
+                          <input
+                            id="label"
+                            maxLength="50"
+                            type="text"
+                            className="form-control"
+                            placeholder="Share Folder's URL of Picture (zooming the label on your item)  [ maxLength=50 ]"
+                            onChange={(e) => {
+                              setNewDoc({ ...newDoc, label: e.target.value })
+                            }}
+                          />
+                        </div>
+
+                        <hr />
+
+                        <div>
+                          <button
+                            className="btn btn-success"
+                            onClick={() => onSubmitNew()}
+                          >
+                            <i className="far fa-check-square"></i>
+                            &nbsp;Submit
+                          </button>
+                          &nbsp;
+                          <button
+                            className="btn btn-secondary"
+                            onClick={() => {
+                              handleTextSearch()
+                              setEditModalOpen(false)
+                            }}>
+                            Close
+                          </button>
+                        </div>
                       </div>
                     </Modal>
                     &nbsp;
@@ -967,7 +1202,7 @@ function App() {
                             />
                           </label>
                         </div>
-                        <hr style={{ width: '1000px' }} />
+                        <hr style={{ width: '500px' }} />
                         <div>
                           <button
                             className="btn btn-success"
@@ -992,7 +1227,7 @@ function App() {
           </tbody>
         </table>
       </div>
-    </div>
+    </div >
   )
 }
 
