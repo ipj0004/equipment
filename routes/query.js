@@ -37,6 +37,18 @@ router.put('/update/:id', (req, res) => {
     )
 })
 
+router.put('/pushRentalHistory/:id', (req, res) => {
+    Eq.findByIdAndUpdate(
+        req.params.id, {
+            $push:{rentalHistory: req.body}
+        },
+        (err, doc) => {
+            if(err) return res.status(400).json({success: false, err})
+            return res.status(200).json({success: true, before: doc})
+        }
+    )
+})
+
 router.delete('/delete/:id', (req, res) => {
     Eq.findByIdAndRemove(req.params.id).exec((err, deletedItem) => {
         if(err) {
