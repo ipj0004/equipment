@@ -3,7 +3,9 @@ const mongoose = require('mongoose')
 const keys = require("./config/keys")
 const cors = require('cors')
 
-mongoose.connect(keys.mongo_uri)
+mongoose.connect(keys.mongo_uri, (error) => {
+    console.log(error)
+})
 
 const app = express()
 app.use(express.json())
