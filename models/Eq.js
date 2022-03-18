@@ -1,6 +1,10 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
+
+/*************************************************************************/
+/*********************** Defines your DB here ****************************/
+/*************************************************************************/
 const EqSchema = new Schema({
     no: {
         type: String,

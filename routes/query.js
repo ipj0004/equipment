@@ -1,6 +1,10 @@
 const router = require('express').Router()
 const {Eq} = require('../models/Eq')
 
+
+/*************************************************************************/
+/******************* To add a new document into DB ***********************/
+/*************************************************************************/
 router.post('/add', (req, res) => {
     const post = new Eq(req.body)
     post.save((err) => {
@@ -9,6 +13,11 @@ router.post('/add', (req, res) => {
     })
 })
 
+
+/*************************************************************************/
+/********************* To get all documents in DB ************************/
+/* disable and find another solution if your collection is huge so that response time exceeds 20s */
+/*************************************************************************/
 router.get('/', (req, res) => {
     Eq.find().exec((err, docs) => {
         if(err) return res.status(400).json({success: false, error: err})
@@ -16,6 +25,10 @@ router.get('/', (req, res) => {
     })
 })
 
+
+/*************************************************************************/
+/********************* To get a document from DB *************************/
+/*************************************************************************/
 router.get('/detail/:id', (req, res) => {
     let id = req.params.id
 
@@ -25,6 +38,10 @@ router.get('/detail/:id', (req, res) => {
     })
 })
 
+
+/*************************************************************************/
+/************ To edit one or multiple data of a document  ****************/
+/*************************************************************************/
 router.put('/update/:id', (req, res) => {
     Eq.findByIdAndUpdate(
         req.params.id, {
@@ -37,6 +54,10 @@ router.put('/update/:id', (req, res) => {
     )
 })
 
+
+/*************************************************************************/
+/******* To add a new record onto the Rental History of a document  ******/
+/*************************************************************************/
 router.put('/pushRentalHistory/:id', (req, res) => {
     Eq.findByIdAndUpdate(
         req.params.id, {
@@ -49,6 +70,10 @@ router.put('/pushRentalHistory/:id', (req, res) => {
     )
 })
 
+
+/*************************************************************************/
+/************************* To delete a document  *************************/
+/*************************************************************************/
 router.delete('/delete/:id', (req, res) => {
     Eq.findByIdAndRemove(req.params.id).exec((err, deletedItem) => {
         if(err) {
