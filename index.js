@@ -3,8 +3,10 @@ const mongoose = require('mongoose')
 const keys = require("./config/keys")
 const cors = require('cors')
 
+let err = ""
+
 mongoose.connect(keys.mongo_uri, (error) => {
-    console.log(error)
+    err = "connection error on mongoose"
 })
 
 const app = express()
@@ -22,7 +24,7 @@ if(process.env.NODE_ENV === "production") {
 }
 
 app.get('/', (req, res) => {
-    res.send({Project: 'wellcome'})
+    res.send({err: err})
 })
 
 const PORT = process.env.PORT || 5000
