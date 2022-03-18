@@ -398,7 +398,7 @@ function App() {
                         <input
                           required
                           id="no"
-                          maxLength="20"
+                          maxLength="50"
                           type="text"
                           className="form-control"
                           placeholder=""
@@ -468,7 +468,7 @@ function App() {
                       <label>Unit Price (extax)
                         <input
                           id="unitPrice"
-                          maxLength="10"
+                          maxLength="12"
                           type="tel"
                           className="form-control"
                           placeholder="e.g. 9980"
@@ -493,7 +493,7 @@ function App() {
                       <label>Qty
                         <input
                           id="qty"
-                          maxLength="5"
+                          maxLength="6"
                           type="tel"
                           className="form-control"
                           placeholder=""
@@ -518,7 +518,7 @@ function App() {
                       <label>Department
                         <input
                           id="department"
-                          maxLength="20"
+                          maxLength="30"
                           type="text"
                           className="form-control"
                           placeholder=""
@@ -808,7 +808,7 @@ function App() {
             <input
               className="form-control me-2"
               id="searchSupplyNo"
-              maxLength='20'
+              maxLength='50'
               type="search"
               placeholder="Supply No"
               aria-label="Search"
@@ -841,7 +841,7 @@ function App() {
             <input
               className="form-control me-2"
               id="searchDept"
-              maxLength='20'
+              maxLength='50'
               type="search"
               placeholder="Dept"
               aria-label="Search"
@@ -863,7 +863,7 @@ function App() {
             <input
               className="form-control me-2"
               id="searchNote"
-              maxLength='20'
+              maxLength='50'
               type="search"
               placeholder="Note"
               aria-label="Search"
@@ -995,7 +995,7 @@ function App() {
                             <input
                               required
                               id={"noEdit" + index.toString()}
-                              maxLength="20"
+                              maxLength="50"
                               type="text"
                               className="form-control"
                               placeholder={tempDoc.no}
@@ -1074,7 +1074,7 @@ function App() {
                           <label>Unit Price (extax)
                             <input
                               id={"unitPriceEdit" + index.toString()}
-                              maxLength="10"
+                              maxLength="12"
                               type="tel"
                               className="form-control"
                               placeholder={tempDoc.unitPrice}
@@ -1104,7 +1104,7 @@ function App() {
                           <label>Qty
                             <input
                               id={"qtyEdit" + index.toString()}
-                              maxLength="5"
+                              maxLength="6"
                               type="tel"
                               className="form-control"
                               placeholder={tempDoc.qty}
@@ -1134,7 +1134,7 @@ function App() {
                           <label>Department
                             <input
                               id={"departmentEdit" + index.toString()}
-                              maxLength="20"
+                              maxLength="30"
                               type="text"
                               className="form-control"
                               placeholder={tempDoc.department}
