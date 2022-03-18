@@ -109,9 +109,12 @@ function App() {
   /*************************************************************************/
   /********* function for getting all Documents in Collection **************/
   /*************************************************************************/
-  async function fetchData() {
-    const { data } = await axios.get(`/gvn7dqcu/`)
-    setAllDocs(data.found)
+  function fetchData() {
+    axios.get(`/gvn7dqcu/`).then((res) => {
+      if (res.data.success) {
+        setAllDocs(res.data.found)
+      }
+    })
   }
 
 
