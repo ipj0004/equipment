@@ -1312,7 +1312,7 @@ function App() {
                             <input
                               required
                               id="no"
-                              maxLength="30"
+                              maxLength="50"
                               type="text"
                               className="form-control"
                               onChange={(e) => setConfirmNo(e.target.value)}
