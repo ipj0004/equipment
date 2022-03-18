@@ -60,7 +60,7 @@ function App() {
 
 
   /*************************************************************************/
-  /***** state for Modal which is about Showing All Data of a document *****/
+  /******* state for Modal which is about Editing Data of a document *******/
   /*************************************************************************/
   const [editModalOpen, setEditModalOpen] = useState(false)
 
