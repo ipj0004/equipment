@@ -3,5 +3,5 @@ module.exports = {
 }
 
 /*************************************************************************/
-/* go to Heroku & you need to define MONGO_URI: your connection string of MONGO DB */
+/* go to Heroku & need to define MONGO_URI: connection string of MONGO DB */
 /*************************************************************************/
